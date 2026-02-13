@@ -17,9 +17,100 @@ stored.
 5. Map the IP address with its MAC address and return the MAC address to client.
 P
 ## PROGRAM - ARP
+#### server(ARP):
+```
+import socket
+
+s=socket.socket()
+s.bind(("127.0.0.1",8000))  
+s.listen(5)
+print("Server is listening on port 8000...")
+conn,addr=s.accept()
+print("Connection from:",addr)  
+
+arp_table = {"10.23.45": "00:11:22:33:44:55", "10.23.46": "66:77:88:99:AA:BB"}
+
+while True:
+    data = conn.recv(1024).decode()
+    if not data:
+        break
+    print("Received request for IP:", data)
+    
+    mac_address = arp_table.get(data, "MAC Address not found")
+    conn.send(mac_address.encode())
+    
+conn.close()
+s.close()
+
+
+```
+### client.py:
+```
+import socket
+s = socket.socket()
+s.connect(("127.0.0.1", 8000))
+
+ip_address = input("Enter IP address to resolve: ")
+s.send(ip_address.encode())
+mac_address = s.recv(1024).decode()
+print("MAC Address:", mac_address)  
+s.close()   
+```
 ## OUPUT - ARP
+### server.py:
+![alt text](image.png)
+
+### client.py:
+![alt text](image-1.png)
 ## PROGRAM - RARP
+### server.py:
+```import socket
+
+s = socket.socket()
+s.bind(('localhost', 8001))
+s.listen(5)
+print("RARP Server is listening on port 8001...")
+c, addr = s.accept()
+
+address = {
+    "6A:08:AA:C2": "165.165.80.80",
+    "8A:BC:E3:FA": "165.165.79.1"
+}
+
+while True:
+    mac = c.recv(1024).decode()
+    print(f"Received MAC: {mac}")
+    ip = address.get(mac, "Not Found")
+    c.send(ip.encode())
+    exit_command = input("Type 'exit' to stop the server or press Enter to continue: ")
+    if exit_command.lower() == 'exit':  
+        break
+    
+c.close()
+s.close()  
+``` 
+### client.py:
+```
+import socket
+
+s = socket.socket()
+s.connect(('localhost', 8001))
+
+while True:
+    
+    mac = input("Enter Physical Address (MAC): ")
+    s.send(mac.encode())
+    print("IP Address:", s.recv(1024).decode())
+    
+    
+    
+
+```
 ## OUPUT -RARP
+### client:
+![alt text](pic1.png)
+### server:
+![alt text](pic2.png)
 ## RESULT
 Thus, the python program for simulating ARP protocols using TCP was successfully 
 executed.
